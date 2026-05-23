@@ -7,3 +7,4 @@ seaborn==0.13.2
 scikit-learn==1.5.2
 tensorflow==2.15.1
 scipy==1.13.1
+gunicorn==23.0.0
