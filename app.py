@@ -28,6 +28,7 @@ from tf_keras.models import load_model
 from scipy.ndimage import uniform_filter1d
 from flask import session
 from sklearn.model_selection import train_test_split
+import gc
 from datetime import datetime, timedelta
 
 # =========================
@@ -106,13 +107,7 @@ print("🔄 Loading scaler...")
 print("🔄 Loading features...")
 
 
-_artifact_cache = {}  # Cache model agar tidak load ulang setiap request
-
 def load_artifacts_by_location(location):
-    global _artifact_cache
-    if location in _artifact_cache:
-        return _artifact_cache[location]
-
     location_folder = location.lower().replace(" ", "_")
     base_path = os.path.join(MODEL_DIR, location_folder)
     model_path = os.path.join(base_path, f"{location_folder}.h5")
@@ -120,13 +115,23 @@ def load_artifacts_by_location(location):
     features_path = os.path.join(base_path, "features.json")
     if not os.path.exists(model_path):
         return None, None, None
-    model = load_model(model_path, compile=False)
+    # Load scaler & features saja dulu (ringan)
     scaler = joblib.load(scaler_path)
     with open(features_path) as f:
         features = json.load(f)
-
-    _artifact_cache[location] = (model, scaler, features)
+    # Model di-load terakhir, langsung dipakai, lalu di-clear
+    model = load_model(model_path, compile=False)
     return model, scaler, features
+
+
+def clear_model(model):
+    """Hapus model dari memory setelah selesai dipakai"""
+    try:
+        del model
+        gc.collect()
+        tf.keras.backend.clear_session()
+    except Exception:
+        pass
 
 
 print("✅ Model, scaler, dan features berhasil dimuat")
@@ -556,6 +561,7 @@ def pred_vs_actual():
     with open(os.path.join(pred_dir, f"{location}.json"), "w") as f:
         json.dump(result, f)
 
+    clear_model(model)
     return jsonify(result)
 
 
@@ -632,6 +638,7 @@ def forecast():
     with open(os.path.join(forecasts_dir, f"{location}_{safe_feat}.json"), "w") as f:
         json.dump(result, f)
 
+    clear_model(model)
     return jsonify(result)
 
 
