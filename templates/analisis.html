@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Analisis Data</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<div class="sidebar">
+  <h2>Sistem Peringatan Dini<br>Banjir Rob</h2>
+  <nav>
+    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+    <a href="{{ url_for('prediksi') }}">Prediksi</a>
+    <a href="{{ url_for('analisis') }}" class="active">Analisis Data</a>
+    <a href="{{ url_for('resources') }}">Sumber Daya & Informasi</a>
+  </nav>
+  <footer id="adminFooter">
+  <button id="adminBtn" onclick="adminLogin()" class="btn-admin">
+  Admin Login
+  </button>
+  </footer>
+</div>
+
+<div class="main">
+
+  <h1>Analisis Data Mendalam</h1>
+  <p class="subtitle">
+    Bagian ini menyajikan data historis dan metrik kinerja model AI.
+  </p>
+
+  <!-- CARD: UPLOAD DATASET -->
+  <!-- ADMIN ONLY -->
+  <div class="card admin-only" id="adminUploadCard">
+    <label class="card-title">Unggah Dataset Baru</label>
+    <p class="card-desc">
+      Anda dapat mengunggah dataset historis baru untuk dianalisis.
+    </p>
+
+
+
+    <form id="uploadForm" class="upload-form">
+
+    <div class="format-card">
+      <h4>📄 Format Dataset</h4>
+
+      <ul>
+        <li><b>File:</b> CSV</li>
+        <li><b>Separator:</b> titik koma (;)</li>
+        <li><b>Decimal:</b> koma (,)</li>
+        <li><b>Format waktu:</b> dd/mm/yyyy HH:MM</li>
+      </ul>
+
+      <p><b>Kolom wajib:</b></p>
+
+      <div class="column-grid">
+        <span>Time(UTC/GMT)</span>
+        <span>Hsig(m)</span>
+        <span>Hmax(m)</span>
+        <span>elev_m</span>
+        <span>WindSpeed(knots)</span>
+      </div>
+
+      <a href="/static/contoh_dataset.csv" download class="download-btn">
+        📥 Download Contoh Dataset
+      </a>
+    </div>
+
+      <input type="file" id="csvFile" accept=".csv" required>
+
+      <select id="uploadLocationSelect" class="select-box" required>
+        <option value="">Pilih Lokasi...</option>
+        <option value="bandar_agung">Bandar Agung</option>
+        <option value="kalianda">Kalianda</option>
+        <option value="kota_agung">Kota Agung</option>
+        <option value="kota_jawa">Kota Jawa</option>
+        <option value="krui">Krui</option>
+        <option value="labuhan_maringai">Labuhan Maringai</option>
+        <option value="panjang">Panjang</option>
+        <option value="pantai_tanjung_jati">Pantai Tanjung Jati</option>
+        <option value="pasar_way_selom">Pasar Way Selom</option>
+        <option value="pematang_sawah">Pematang Sawah</option>
+        <option value="teluk_betung">Teluk Betung</option>
+        <option value="mesuji">Mesuji</option>
+        <option value="pantai_kerbang_dalam">Pantai Kerbang Dalam</option>
+      </select>
+
+      <button type="submit" class="btn-primary">Unggah Data</button>
+    </form>
+
+    <p id="uploadStatus" class="status-text"></p>
+  </div>
+
+<div id="validationBox" class="validation-box" style="display:none;">
+  <p><b>Validasi Dataset:</b></p>
+  <ul id="validationList"></ul>
+</div>
+
+
+  <!-- CARD: DATASET & MODEL -->
+  <div class="card">
+    <label class="card-title">Manajemen Dataset & Model</label>
+    <select id="locationSelect" class="select-box">
+      <option value="">Pilih Lokasi...</option>
+    </select>
+
+    <select id="featureSelect" class="select-box">
+      <option value="">Pilih Fitur Time Series...</option>
+    </select>
+  </div>   
+
+
+
+  <div class="button-group admin-only">
+    <p class="status-text">
+      Model AI dilatih sebelumnya dan digunakan langsung untuk evaluasi dan prediksi.
+    </p>
+    <button id="evalBtn" class="btn-primary" onclick="evaluateModel()" disabled>
+      Uji & Validasi Model
+    </button>
+    <p id="evalStatus"></p>
+
+  </div>
+
+<!-- TIME SERIES -->
+<div class="card">
+  <label class="card-title">Data Input Time Series</label>
+  <p class="card-desc">
+    Grafik di bawah menunjukkan contoh data input time series.
+  </p>
+
+  <div class="graph" id="timeSeriesGraph"></div>
+</div>
+
+
+<!-- EVALUASI -->
+<div class="card">
+  <label class="card-title">Evaluasi Kinerja Model</label>
+  <p class="card-desc">
+    Grafik di bawah menampilkan metrik evaluasi model.
+  </p>
+
+  <div class="graph" id="evaluationGraph"></div>
+  <div id="evalExplanation"></div>
+  <div id="summaryBox"></div>
+</div>
+
+
+<!-- CLUSTER -->
+<div class="card">
+  <label class="card-title">Visualisasi Clustering</label>
+  <p class="card-desc">
+    Grafik berikut menampilkan hasil analisis clustering dan karakteristik tiap cluster.
+  </p>
+
+  <div class="graph" id="clusterGraph"></div>
+  <div id="clusterTableContainer"></div>
+  <div id="clusterExplanation"></div>
+</div>
+
+
+<!-- JS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@2.0.1/dist/chartjs-chart-matrix.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/analisis.js') }}"></script>
+
+<script>
+
+
+
+</script>
+
+<script>
+async function updateAdminUI(){
+
+  const res = await fetch("/admin/status");
+  const data = await res.json();
+
+  const btn = document.getElementById("adminBtn");
+
+  if(!btn) return;
+
+  if(data.is_admin){
+
+    btn.innerText = "Admin ✓ (Logout)";
+    btn.onclick = adminLogout;
+    btn.style.background = "#2e7d32";
+
+    document.querySelectorAll(".admin-only").forEach(el=>{
+      el.style.display = "block";
+    });
+
+  }else{
+
+    btn.innerText = "Admin Login";
+    btn.onclick = adminLogin;
+    btn.style.background = "#444";
+
+    document.querySelectorAll(".admin-only").forEach(el=>{
+      el.style.display = "none";
+    });
+
+  }
+}
+
+document.addEventListener("DOMContentLoaded", updateAdminUI);
+
+</script>
+
+
+
+<!-- ADMIN LOGIN MODAL -->
+<div id="adminModal" class="modal">
+  <div class="modal-content">
+    <h3>Admin Login</h3>
+    <input type="password" id="adminPassword" placeholder="Masukkan password admin">
+    
+    <div class="modal-actions">
+      <button onclick="submitAdminLogin()">Login</button>
+      <button class="secondary" onclick="closeAdminModal()">Batal</button>
+    </div>
+
+    <p id="loginError" style="color:red; font-size:13px;"></p>
+  </div>
+</div>
+
+</body>
+</html>

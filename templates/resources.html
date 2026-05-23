@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <title>Sumber Daya & Informasi</title>
+  <style>
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .8px;
+      text-transform: uppercase;
+      color: #9ca3af;
+      margin-bottom: 6px;
+    }
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #111827;
+      margin: 0 0 4px;
+    }
+    .section-sub {
+      font-size: 13px;
+      color: #6b7280;
+      margin: 0 0 18px;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 4px;
+    }
+    .info-box {
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 16px 18px;
+      background: #fff;
+    }
+    .info-box h4 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+      margin: 0 0 6px;
+    }
+    .info-box p {
+      font-size: 13px;
+      color: #6b7280;
+      line-height: 1.65;
+      margin: 0;
+    }
+    .loc-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .loc-table th {
+      background: #f3f4f6;
+      padding: 9px 14px;
+      text-align: left;
+      font-weight: 600;
+      color: #374151;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .loc-table td {
+      padding: 9px 14px;
+      border-bottom: 1px solid #f3f4f6;
+      color: #4b5563;
+    }
+    .loc-table tr:last-child td { border-bottom: none; }
+    .loc-table tr:hover td { background: #f9fafb; }
+    .badge {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge-green { background: #dcfce7; color: #166534; }
+    .faq {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .faq summary {
+      padding: 12px 16px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: #111827;
+      cursor: pointer;
+      background: #f9fafb;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary::before {
+      content: '▶';
+      font-size: 10px;
+      color: #9ca3af;
+      transition: transform .2s;
+      flex-shrink: 0;
+    }
+    details[open] > summary::before { transform: rotate(90deg); }
+    .faq > div {
+      padding: 13px 16px;
+      font-size: 13px;
+      color: #4b5563;
+      line-height: 1.7;
+      border-top: 1px solid #e5e7eb;
+      background: #fff;
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .contact-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 14px 16px;
+      background: #fff;
+      font-size: 13px;
+      color: #374151;
+      line-height: 1.75;
+    }
+    .contact-inst {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+    .contact-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: #111827;
+      margin-bottom: 6px;
+    }
+    .glossary-row {
+      display: flex;
+      gap: 16px;
+      padding: 11px 0;
+      border-bottom: 1px solid #f3f4f6;
+      font-size: 13px;
+    }
+    .glossary-row:last-child { border-bottom: none; }
+    .glossary-term {
+      min-width: 170px;
+      font-weight: 600;
+      color: #111827;
+    }
+    .glossary-def { color: #6b7280; line-height: 1.65; }
+    .interp-box {
+      border-left: 3px solid #3b82f6;
+      background: #eff6ff;
+      border-radius: 0 8px 8px 0;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: #1e40af;
+      line-height: 1.7;
+      margin-top: 16px;
+    }
+    .interp-box p { margin: 0; }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <h2>Sistem Peringatan Dini<br>Banjir Rob</h2>
+  <nav>
+    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+    <a href="{{ url_for('prediksi') }}">Prediksi</a>
+    <a href="{{ url_for('analisis') }}">Analisis Data</a>
+    <a href="{{ url_for('resources') }}" class="active">Sumber Daya & Informasi</a>
+  </nav>
+  <footer>Admin</footer>
+</div>
+
+<div class="main">
+
+  <h1>Sumber Daya & Informasi</h1>
+  <p style="opacity:.7;margin-bottom:24px;">
+    Temukan informasi lengkap tentang Sistem Peringatan Dini Banjir Rob, cakupan wilayah pemantauan, panduan penggunaan, dan kontak darurat.
+  </p>
+
+  <!-- TENTANG -->
+  <div class="card" style="padding:24px;margin-bottom:20px;">
+    <div class="section-label">Sistem</div>
+    <h2 class="section-title">Tentang Sistem Peringatan Dini Banjir Rob</h2>
+    <p class="section-sub">Sistem Informasi Peringatan Dini Banjir Rob Berbasis Deep Learning</p>
+
+    <div class="info-grid">
+      <div class="info-box">
+        <h4>🎯 Tujuan Sistem</h4>
+        <p>Sistem Peringatan Dini Banjir Rob dirancang untuk memprediksi potensi banjir rob di <strong>13 titik pemantauan</strong> sepanjang pesisir Provinsi Lampung dengan cakupan prediksi <strong>48 jam ke depan</strong> menggunakan model LSTM.</p>
+      </div>
+      <div class="info-box">
+        <h4>🤖 Teknologi Model</h4>
+        <p>Menggunakan arsitektur <strong>Long Short-Term Memory (LSTM)</strong> yang dilatih pada data historis pasang surut. Setiap stasiun memiliki model tersendiri yang dilatih secara independen.</p>
+      </div>
+      <div class="info-box">
+        <h4>📡 Sumber Data</h4>
+        <p>Data pasang surut diperoleh dari stasiun pengamatan di sepanjang pesisir Lampung. Variabel utama yang diprediksi adalah <strong>elev_m</strong> (ketinggian muka air laut dalam meter).</p>
+      </div>
+      <div class="info-box">
+        <h4>⚠️ Batasan Sistem</h4>
+        <p>Prediksi bersifat estimasi berbasis data historis. Kondisi ekstrem mendadak dapat memengaruhi akurasi. Selalu konfirmasi dengan BPBD atau BMKG sebelum mengambil tindakan evakuasi.</p>
+      </div>
+    </div>
+
+    <div class="interp-box">
+      <p>ℹ️ Status banjir ditentukan berdasarkan <strong>threshold</strong> ketinggian muka air yang dihitung otomatis per stasiun menggunakan <strong>KMeans Clustering</strong>. Threshold berbeda untuk setiap lokasi karena perbedaan kondisi geografis dan karakteristik pasang surut.</p>
+    </div>
+  </div>
+
+  <!-- LOKASI -->
+  <div class="card" style="padding:24px;margin-bottom:20px;">
+    <div class="section-label">Wilayah</div>
+    <h2 class="section-title">Cakupan Lokasi Pemantauan</h2>
+    <p class="section-sub">13 stasiun pengamatan aktif di sepanjang pesisir Provinsi Lampung</p>
+
+    <table class="loc-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nama Stasiun</th>
+          <th>Kabupaten / Kota</th>
+          <th>Sisi Pesisir</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td><strong>Bandar Agung</strong></td><td>Tulang Bawang</td><td>Timur</td><td><span class="badge badge-green">✓ Aktif</span></td></tr>
+        <tr><td>2</td><td><strong>Kalianda</strong></td><td>Lampung Selatan</td><td>Selatan – Teluk Lampung</td><td><span class="badge badge-green">✓ Aktif</span></td></tr>
+        <tr><td>3</td><td><strong>Kota Agung</strong></td><td>Tanggamus</td><td>Selatan – Teluk Semangka</td><td><span class="badge badge-green">✓ Aktif</span></td></tr>
+        <tr><td>4</td><td><strong>Kota Jawa</strong></td><td>Lampung Selatan</td><td>Selatan</td><td><span class="badge badge-green">✓ Aktif</span></td></tr>
+        <tr><td>5</td><td><strong>Krui</strong></td><td>Pesisir Barat</td><td>Barat – Samudra Hindia</td><td><span class="badge badge-green">✓ Aktif</span></td></tr>
+        <tr><td>6</td><td><strong>Labuhan Maringai</strong></td><td>Lampung Timur</td><td>Timur</td><td><span class="badge badge-green">✓ Aktif</span></td></tr>
+        <tr><td>7</td><td><strong>Mesuji</strong></td><td>Mesuji</td><td>Timur – Muara Sungai Mesuji</td><td><span class="badge badge-green">✓ Aktif</span></td></tr>
+        <tr><td>8</td><td><strong>Panjang</strong></td><td>Bandar Lampung</td><td>Selatan – Teluk Lampung</td><td><span class="badge badge-green">✓ Aktif</span></td></tr>
+        <tr><td>9</td><td><strong>Pantai Kerbang Dalam</strong></td><td>Lampung Selatan</td><td>Selatan – Teluk Lampung</td><td><span class="badge badge-green">✓ Aktif</span></td></tr>
+        <tr><td>10</td><td><strong>Pantai Tanjung Jati</strong></td><td>Lampung Selatan</td><td>Selatan – Selat Sunda</td><td><span class="badge badge-green">✓ Aktif</span></td></tr>
+        <tr><td>11</td><td><strong>Pasar Way Selom</strong></td><td>Lampung Timur</td><td>Timur</td><td><span class="badge badge-green">✓ Aktif</span></td></tr>
+        <tr><td>12</td><td><strong>Pematang Sawah</strong></td><td>Tanggamus</td><td>Selatan – Teluk Semangka</td><td><span class="badge badge-green">✓ Aktif</span></td></tr>
+        <tr><td>13</td><td><strong>Teluk Betung</strong></td><td>Bandar Lampung</td><td>Selatan – Teluk Lampung</td><td><span class="badge badge-green">✓ Aktif</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- FAQ -->
+  <div class="card" style="padding:24px;margin-bottom:20px;">
+    <div class="section-label">Panduan</div>
+    <h2 class="section-title">Pertanyaan Umum (FAQ)</h2>
+    <p class="section-sub">Pertanyaan yang sering diajukan seputar penggunaan Sistem Peringatan Dini Banjir Rob</p>
+
+    <details class="faq">
+      <summary>Apa itu banjir rob dan mengapa perlu diwaspadai?</summary>
+      <div>Banjir rob adalah genangan air laut yang masuk ke daratan akibat pasang surut yang melebihi batas normal. Fenomena ini diperparah oleh <strong>penurunan muka tanah (land subsidence)</strong> dan kenaikan permukaan laut akibat perubahan iklim. Di pesisir Lampung, banjir rob berisiko merusak infrastruktur, mencemari sumber air bersih, dan merugikan masyarakat nelayan serta warga pesisir.</div>
+    </details>
+
+    <details class="faq">
+      <summary>Bagaimana cara membaca status "Potensi Banjir" dan "Aman" di Dashboard?</summary>
+      <div>
+        Status ditentukan dengan membandingkan prediksi <em>elev_m</em> terhadap <strong>threshold banjir</strong> masing-masing stasiun:<br><br>
+        • <strong style="color:#b45309;">⚠ Potensi Banjir</strong> — prediksi elev_m ≥ threshold dalam 48 jam ke depan<br>
+        • <strong style="color:#166534;">✅ Aman</strong> — prediksi elev_m di bawah threshold selama 48 jam ke depan<br><br>
+        Threshold dihitung otomatis per stasiun menggunakan <strong>KMeans (2 cluster)</strong> dari data historis sehingga nilainya berbeda untuk tiap lokasi.
+      </div>
+    </details>
+
+    <details class="faq">
+      <summary>Seberapa jauh ke depan sistem bisa memprediksi?</summary>
+      <div>Sistem menyediakan prediksi hingga <strong>48 jam (2 hari) ke depan</strong> dari waktu data terakhir yang tersedia. Prediksi dilakukan per jam, menghasilkan 48 titik data untuk setiap stasiun. Horizon ini dipilih untuk keseimbangan antara akurasi model dan kemanfaatan operasional.</div>
+    </details>
+
+    <details class="faq">
+      <summary>Bagaimana cara mengunggah data baru ke sistem?</summary>
+      <div>
+        Masuk ke halaman <strong>Prediksi</strong> → pilih lokasi stasiun → unggah file CSV data pasang surut.<br><br>
+        Format file yang diterima:<br>
+        • Separator: <code>titik koma ( ; )</code><br>
+        • Desimal: <code>koma ( , )</code><br>
+        • Encoding: <code>UTF-8</code><br>
+        • Kolom wajib: <code>Time(UTC/GMT)</code> dan <code>elev_m</code> beserta fitur pendukung<br><br>
+        Sistem akan otomatis memproses dan menjalankan prediksi menggunakan model yang sudah terlatih untuk lokasi tersebut.
+      </div>
+    </details>
+
+    <details class="faq">
+      <summary>Apa arti metrik RMSE dan MAE di halaman Analisis Data?</summary>
+      <div>
+        • <strong>RMSE (Root Mean Square Error)</strong> — rata-rata kesalahan prediksi dalam meter, memberi bobot lebih besar pada kesalahan yang besar.<br>
+        • <strong>MAE (Mean Absolute Error)</strong> — rata-rata selisih absolut antara prediksi dan nilai aktual, lebih mudah diinterpretasikan.<br><br>
+        Klasifikasi kualitas model berdasarkan nilai RMSE:<br>
+        • <strong style="color:#166534;">✦ Sangat Akurat</strong> — RMSE &lt; 0.05 m<br>
+        • <strong style="color:#1d4ed8;">Akurat</strong> — RMSE 0.05 – 0.10 m<br>
+        • <strong style="color:#92400e;">Cukup</strong> — RMSE &gt; 0.10 m
+      </div>
+    </details>
+
+    <details class="faq">
+      <summary>Apakah data satu stasiun mempengaruhi stasiun lain?</summary>
+      <div>Tidak. Setiap stasiun memiliki <strong>model LSTM</strong>, <strong>scaler normalisasi</strong>, dan <strong>threshold</strong> tersendiri yang dilatih secara independen. Prediksi, evaluasi, dan analisis clustering tiap stasiun sepenuhnya bersifat terpisah satu sama lain.</div>
+    </details>
+
+    <details class="faq">
+      <summary>Siapa yang bisa mengakses fitur unggah data dan menjalankan prediksi?</summary>
+      <div>Fitur unggah data dan menjalankan prediksi hanya tersedia untuk pengguna yang telah <strong>login sebagai Admin</strong>. Pengguna umum hanya dapat melihat hasil prediksi terakhir yang sudah dijalankan oleh admin, tanpa perlu login.</div>
+    </details>
+  </div>
+
+  <!-- KONTAK -->
+  <div class="card" style="padding:24px;margin-bottom:20px;">
+    <div class="section-label">Darurat</div>
+    <h2 class="section-title">Kontak Darurat</h2>
+    <p class="section-sub">Hubungi instansi berikut jika terjadi kondisi darurat banjir rob di wilayah Anda</p>
+
+    <div class="contact-grid">
+      <div class="contact-card">
+        <div class="contact-inst">Penanggulangan Bencana</div>
+        <div class="contact-name">BPBD Provinsi Lampung</div>
+        📞 (0721) 773 666<br>
+        🌐 bpbd.lampungprov.go.id
+      </div>
+      <div class="contact-card">
+        <div class="contact-inst">Meteorologi & Geofisika</div>
+        <div class="contact-name">BMKG Stasiun Meteorologi Maritim Panjang</div>
+        📞 (0721) 33535<br>
+        📍 Jl. Yos Sudarso, Panjang, Bandar Lampung
+      </div>
+      <div class="contact-card">
+        <div class="contact-inst">Pencarian & Pertolongan</div>
+        <div class="contact-name">Basarnas Lampung</div>
+        📞 115 <span style="color:#9ca3af;font-size:12px;">(bebas pulsa)</span><br>
+        🌐 basarnas.go.id
+      </div>
+      <div class="contact-card">
+        <div class="contact-inst">Nomor Darurat Nasional</div>
+        <div class="contact-name">Layanan Terpadu</div>
+        📞 112 — Darurat Terpadu<br>
+        📞 117 — BNPB Nasional
+      </div>
+    </div>
+  </div>
+
+  <!-- GLOSARIUM -->
+  <div class="card" style="padding:24px;margin-bottom:20px;">
+    <div class="section-label">Referensi</div>
+    <h2 class="section-title">Glosarium</h2>
+    <p class="section-sub">Istilah teknis yang digunakan dalam Sistem Peringatan Dini Banjir Rob</p>
+
+    <div class="glossary-row">
+      <span class="glossary-term">elev_m</span>
+      <span class="glossary-def">Ketinggian muka air laut dalam satuan meter (m), diukur relatif terhadap datum referensi. Variabel utama yang diprediksi oleh model LSTM di setiap stasiun.</span>
+    </div>
+    <div class="glossary-row">
+      <span class="glossary-term">LSTM</span>
+      <span class="glossary-def">Long Short-Term Memory — arsitektur deep learning yang dirancang untuk memproses dan memprediksi data deret waktu (time series) dengan kemampuan mengingat pola jangka panjang.</span>
+    </div>
+    <div class="glossary-row">
+      <span class="glossary-term">Threshold Banjir</span>
+      <span class="glossary-def">Ambang batas ketinggian muka air yang memisahkan kondisi normal dari kondisi banjir rob. Dihitung otomatis per stasiun menggunakan KMeans — diambil dari centroid cluster tertinggi.</span>
+    </div>
+    <div class="glossary-row">
+      <span class="glossary-term">KMeans Clustering</span>
+      <span class="glossary-def">Algoritma pengelompokan data yang membagi nilai elev_m menjadi 2 cluster: kondisi aman (cluster rendah) dan kondisi banjir (cluster tinggi). Digunakan untuk menentukan threshold secara otomatis.</span>
+    </div>
+    <div class="glossary-row">
+      <span class="glossary-term">RMSE</span>
+      <span class="glossary-def">Root Mean Square Error — akar rata-rata kuadrat kesalahan prediksi. Semakin kecil nilainya, semakin akurat model. Satuan sama dengan data asli (meter).</span>
+    </div>
+    <div class="glossary-row">
+      <span class="glossary-term">MAE</span>
+      <span class="glossary-def">Mean Absolute Error — rata-rata selisih absolut antara prediksi dan nilai aktual. Lebih mudah diinterpretasikan secara langsung dibandingkan RMSE.</span>
+    </div>
+    <div class="glossary-row">
+      <span class="glossary-term">Pasang Surut</span>
+      <span class="glossary-def">Naik turunnya permukaan air laut secara periodik akibat gaya gravitasi Bulan dan Matahari. Umumnya terjadi 2 siklus penuh dalam 24 jam di perairan Indonesia.</span>
+    </div>
+    <div class="glossary-row">
+      <span class="glossary-term">Banjir Rob</span>
+      <span class="glossary-def">Genangan air laut yang masuk ke daratan saat kondisi pasang tinggi, diperparah oleh land subsidence dan kenaikan permukaan laut akibat perubahan iklim global.</span>
+    </div>
+    <div class="glossary-row">
+      <span class="glossary-term">Horizon Prediksi</span>
+      <span class="glossary-def">Rentang waktu ke depan yang dicakup prediksi model. Sistem Peringatan Dini Banjir Rob menggunakan horizon 48 jam — 48 langkah prediksi per jam ke depan dari data terakhir.</span>
+    </div>
+    <div class="glossary-row">
+      <span class="glossary-term">Land Subsidence</span>
+      <span class="glossary-def">Penurunan muka tanah bertahap akibat ekstraksi air tanah berlebihan, beban bangunan, atau proses geologi alami. Memperparah risiko banjir rob di wilayah pesisir.</span>
+    </div>
+    <div class="glossary-row">
+      <span class="glossary-term">Postprocess</span>
+      <span class="glossary-def">Pemrosesan akhir prediksi model: offset alignment (menyambung prediksi ke nilai aktual terakhir), blending 5 timestep awal untuk transisi halus, dan clipping minimum −2 m.</span>
+    </div>
+    <div class="glossary-row">
+      <span class="glossary-term">Forecast 48 Jam</span>
+      <span class="glossary-def">Prediksi masa depan yang ditampilkan sebagai garis putus-putus hijau pada grafik Prediksi. Dihasilkan dari input 48 jam data terakhir yang diketahui oleh model.</span>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

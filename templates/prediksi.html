@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <title>Prediksi</title>
+  <style>
+    /* Sembunyikan tombol admin secara default sebelum JS jalan */
+    .admin-only { display: none; }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <h2>Sistem Peringatan Dini<br>Banjir Rob</h2>
+  <nav>
+    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+    <a href="{{ url_for('prediksi') }}" class="active">Prediksi</a>
+    <a href="{{ url_for('analisis') }}">Analisis Data</a>
+    <a href="{{ url_for('resources') }}">Sumber Daya & Informasi</a>
+  </nav>
+  <footer id="adminFooter">
+    <button id="adminBtn" class="btn-admin">Admin Login</button>
+  </footer>
+</div>
+
+<div class="main">
+
+  <h1>Prediksi</h1>
+  <p style="opacity:.7;margin-bottom:20px;">Jelajahi prediksi pasang surut di berbagai lokasi dan waktu.</p>
+
+  <div class="card">
+
+    <label class="card-title">Prediksi & Evaluasi Model</label>
+
+    <div style="margin-bottom:10px;">
+      <label>Lokasi</label>
+      <select id="locationSelect"></select>
+    </div>
+
+    <!-- Tombol hanya muncul saat admin login -->
+    <button id="runPrediksiBtn" class="btn-primary admin-only">
+      ▶ Jalankan Prediksi
+    </button>
+    <p id="predictionStatus" style="margin-top:10px; font-size:13px;"></p>
+
+    <hr style="margin:15px 0; opacity:0.3;">
+
+    <label>Fitur</label>
+    <select id="predFeatureSelect" class="select-box"></select>
+
+    <div class="graph" style="position:relative; height:320px;">
+      <canvas id="predCanvas"></canvas>
+    </div>
+
+    <div id="predExplanation" style="margin-top:12px;"></div>
+
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0"></script>
+<script src="{{ url_for('static', filename='js/prediksi.js') }}"></script>
+
+<script>
+// Satu-satunya pengendali status admin — tidak ada duplikasi di prediksi.js
+async function updateAdminUI() {
+  const res  = await fetch("/admin/status", { credentials: "include" });
+  const data = await res.json();
+  const btn  = document.getElementById("adminBtn");
+  const statusEl = document.getElementById("predictionStatus");
+
+  if (data.is_admin) {
+    // Tampilkan semua elemen admin
+    document.querySelectorAll(".admin-only").forEach(el => {
+      el.style.display = "inline-block";
+    });
+
+    if (btn) {
+      btn.innerText = "Admin ✓ (Logout)";
+      btn.onclick   = adminLogout;
+      btn.style.background = "#2e7d32";
+    }
+
+    if (statusEl) {
+      statusEl.innerHTML = "";
+    }
+
+  } else {
+    // Sembunyikan semua elemen admin
+    document.querySelectorAll(".admin-only").forEach(el => {
+      el.style.display = "none";
+    });
+
+    if (btn) {
+      btn.innerText = "Admin Login";
+      btn.onclick   = adminLogin;
+      btn.style.background = "#444";
+    }
+
+    if (statusEl) {
+      statusEl.innerHTML =
+        '<span style="color:#888">ℹ️ Grafik menampilkan hasil prediksi terakhir yang dijalankan admin.</span>';
+    }
+  }
+}
+
+document.addEventListener("DOMContentLoaded", updateAdminUI);
+</script>
+
+<!-- ADMIN LOGIN MODAL -->
+<div id="adminModal" class="modal">
+  <div class="modal-content">
+    <h3>Admin Login</h3>
+    <input type="password" id="adminPassword" placeholder="Masukkan password admin">
+    <div class="modal-actions">
+      <button onclick="submitAdminLogin()">Login</button>
+      <button class="secondary" onclick="closeAdminModal()">Batal</button>
+    </div>
+    <p id="loginError" style="color:red; font-size:13px;"></p>
+  </div>
+</div>
+
+</body>
+</html>

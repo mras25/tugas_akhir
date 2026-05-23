@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <title>Dashboard</title>
+</head>
+<body>
+
+<div class="sidebar">
+  <h2>Sistem Peringatan Dini<br>Banjir Rob</h2>
+  <nav>
+    <a href="{{ url_for('dashboard') }}" class="active">Dashboard</a>
+    <a href="{{ url_for('prediksi') }}">Prediksi</a>
+    <a href="{{ url_for('analisis') }}">Analisis Data</a>
+    <a href="{{ url_for('resources') }}">Sumber Daya & Informasi</a>
+  </nav>
+  <footer id="adminFooter">
+  <button id="adminBtn" onclick="adminLogin()" class="btn-admin">
+  Admin Login
+  </button>
+  </footer>
+</div>
+
+<div class="main">
+
+  <h1>Dashboard Monitoring</h1>
+
+  <div class="big-warning" id="statusBanner">
+    Memuat data lokasi...
+  </div>
+
+  <div class="grid-2 mt-20">
+
+    <div class="card">
+      <label>Lokasi Saat Ini</label>
+      <h2 id="locationName">-</h2>
+    </div>
+
+    <div class="card">
+      <label>Tinggi Pasang Surut Terakhir</label>
+      <h2 id="probValue">-</h2>
+    </div>
+
+  </div>
+
+  <div class="card mt-20">
+    <label>Peringatan Terbaru</label>
+   <ul id="alertList">
+    <li>Menunggu data model...</li>
+  </ul>
+  </div>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+<script>
+
+
+
+
+async function updateAdminUI(){
+
+  const res = await fetch("/admin/status");
+  const data = await res.json();
+
+  const btn = document.getElementById("adminBtn");
+
+  if(!btn) return;
+
+  if(data.is_admin){
+
+    btn.innerText = "Admin ✓ (Logout)";
+    btn.onclick = adminLogout;
+    btn.style.background = "#2e7d32";
+
+    document.querySelectorAll(".admin-only").forEach(el=>{
+      el.style.display = "block";
+    });
+
+  }else{
+
+    btn.innerText = "Admin Login";
+    btn.onclick = adminLogin;
+    btn.style.background = "#444";
+
+    document.querySelectorAll(".admin-only").forEach(el=>{
+      el.style.display = "none";
+    });
+
+  }
+}
+
+document.addEventListener("DOMContentLoaded", updateAdminUI);
+
+</script>
+
+<!-- ADMIN LOGIN MODAL -->
+<div id="adminModal" class="modal">
+  <div class="modal-content">
+    <h3>Admin Login</h3>
+    <input type="password" id="adminPassword" placeholder="Masukkan password admin">
+    
+    <div class="modal-actions">
+      <button onclick="submitAdminLogin()">Login</button>
+      <button class="secondary" onclick="closeAdminModal()">Batal</button>
+    </div>
+
+    <p id="loginError" style="color:red; font-size:13px;"></p>
+  </div>
+</div>
+
+</body>
+</html>
