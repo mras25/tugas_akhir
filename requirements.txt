@@ -2,3 +2,4 @@
 Werkzeug==2.2.3
 gunicorn
 mysql-connector-python
+pandas
