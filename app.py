@@ -326,7 +326,7 @@ def evaluate():
 
     df_raw = pd.read_csv(os.path.join(DATA_DIR, "datasets", f"{location}.csv"))
     df = preprocess_like_training(df_raw, features)
-    data_scaled = scaler.transform(df).astype(np.float32)
+    data_scaled = scaler.transform(df.values).astype(np.float32)
 
     window = 48
     horizon = 48
@@ -481,14 +481,14 @@ def pred_vs_actual():
     time_cols = [c for c in df_raw.columns if any(x in c.lower() for x in ["time", "date", "tanggal", "datetime"])]
     time_col = time_cols[0] if time_cols else None
     if time_col:
-        df_raw["datetime"] = pd.to_datetime(df_raw[time_col], errors="coerce")
+        df_raw["datetime"] = pd.to_datetime(df_raw[time_col], dayfirst=True, errors="coerce")
         df_raw = df_raw.dropna(subset=["datetime"])
 
     df = preprocess_like_training(df_raw, features)
     df = align_features(df, features)
     df_indices = df.index.tolist()
 
-    data_scaled = scaler.transform(df).astype(np.float32)
+    data_scaled = scaler.transform(df.values).astype(np.float32)
 
     window = 48
     horizon = 48
@@ -580,14 +580,14 @@ def forecast():
     last_datetime = None
     if time_col:
         try:
-            parsed_times = pd.to_datetime(df_raw[time_col], errors="coerce").dropna()
+            parsed_times = pd.to_datetime(df_raw[time_col], dayfirst=True, errors="coerce").dropna()
             if len(parsed_times) > 0:
                 last_datetime = parsed_times.iloc[-1]
         except Exception:
             pass
 
     df = preprocess_like_training(df_raw, features)
-    data_scaled = scaler.transform(df).astype(np.float32)
+    data_scaled = scaler.transform(df.values).astype(np.float32)
 
     window = 48
     last_seq = data_scaled[-window:].reshape(1, window, len(features))
@@ -726,7 +726,7 @@ def dashboard_data():
     df_proc = handle_outliers_winsorize(df_proc)
     df_proc = df_proc.replace([np.inf, -np.inf], np.nan).dropna()
 
-    data_scaled = scaler.transform(df_proc).astype(np.float32)
+    data_scaled = scaler.transform(df_proc.values).astype(np.float32)
     last_seq = data_scaled[-48:].reshape(1, 48, len(features))
     pred = model.predict(last_seq)
 
