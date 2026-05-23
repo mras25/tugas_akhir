@@ -1,3 +1,17 @@
+import os as _os
+
+# === Batasi memory TensorFlow agar tidak OOM di server ===
+_os.environ["TF_CPP_MIN_LOG_LEVEL"]   = "3"   # Matikan log TF yang tidak perlu
+_os.environ["CUDA_VISIBLE_DEVICES"]   = "-1"  # Paksa CPU only, tidak alokasi GPU memory
+_os.environ["TF_ENABLE_ONEDNN_OPTS"]  = "0"   # Matikan OneDNN
+_os.environ["TF_USE_LEGACY_KERAS"]    = "1"   # Pakai Keras 2.x untuk model .h5 lama
+
+import tensorflow as tf
+
+# Batasi TensorFlow hanya pakai memory sesuai kebutuhan (tidak pre-alokasi semua RAM)
+tf.config.threading.set_inter_op_parallelism_threads(1)
+tf.config.threading.set_intra_op_parallelism_threads(1)
+
 from flask import Flask, render_template, request, jsonify
 import pandas as pd
 import numpy as np
@@ -10,10 +24,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.cluster import KMeans
 from sklearn.metrics import mean_squared_error, mean_absolute_error
-# Pakai tf_keras (Keras 2.x) agar model .h5 lama kompatibel
-# Fix error: "Unrecognized keyword arguments passed to LSTM: {'time_major': False}"
-import os as _os
-_os.environ["TF_USE_LEGACY_KERAS"] = "1"
 from tf_keras.models import load_model
 from scipy.ndimage import uniform_filter1d
 from flask import session
@@ -96,7 +106,13 @@ print("🔄 Loading scaler...")
 print("🔄 Loading features...")
 
 
+_artifact_cache = {}  # Cache model agar tidak load ulang setiap request
+
 def load_artifacts_by_location(location):
+    global _artifact_cache
+    if location in _artifact_cache:
+        return _artifact_cache[location]
+
     location_folder = location.lower().replace(" ", "_")
     base_path = os.path.join(MODEL_DIR, location_folder)
     model_path = os.path.join(base_path, f"{location_folder}.h5")
@@ -108,6 +124,8 @@ def load_artifacts_by_location(location):
     scaler = joblib.load(scaler_path)
     with open(features_path) as f:
         features = json.load(f)
+
+    _artifact_cache[location] = (model, scaler, features)
     return model, scaler, features
 
 
@@ -424,14 +442,8 @@ def cluster_visual():
 # =========================
 @app.route("/api/pred-vs-actual", methods=["GET", "POST"])
 def pred_vs_actual():
-    json_body = {}
-    try:
-        if request.is_json:
-            json_body = request.get_json(silent=True) or {}
-    except Exception:
-        pass
-    location = request.args.get("location") or json_body.get("location")
-    feature_name = request.args.get("feature") or json_body.get("feature", "elev_m")
+    location = request.args.get("location") or (request.json or {}).get("location")
+    feature_name = request.args.get("feature") or (request.json or {}).get("feature", "elev_m")
 
     if not location:
         return jsonify({"error": "Lokasi belum dipilih"}), 400
@@ -555,9 +567,8 @@ def forecast():
     if not session.get("is_admin"):
         return jsonify({"error": "Hanya admin"}), 403
 
-    json_body = request.get_json(silent=True) or {}
-    location = json_body.get("location")
-    feature_name = json_body.get("feature")
+    location = request.json.get("location")
+    feature_name = request.json.get("feature")
 
     model, scaler, features = load_artifacts_by_location(location)
 
