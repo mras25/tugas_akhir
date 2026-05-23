@@ -424,8 +424,14 @@ def cluster_visual():
 # =========================
 @app.route("/api/pred-vs-actual", methods=["GET", "POST"])
 def pred_vs_actual():
-    location = request.args.get("location") or (request.json or {}).get("location")
-    feature_name = request.args.get("feature") or (request.json or {}).get("feature", "elev_m")
+    json_body = {}
+    try:
+        if request.is_json:
+            json_body = request.get_json(silent=True) or {}
+    except Exception:
+        pass
+    location = request.args.get("location") or json_body.get("location")
+    feature_name = request.args.get("feature") or json_body.get("feature", "elev_m")
 
     if not location:
         return jsonify({"error": "Lokasi belum dipilih"}), 400
@@ -549,8 +555,9 @@ def forecast():
     if not session.get("is_admin"):
         return jsonify({"error": "Hanya admin"}), 403
 
-    location = request.json.get("location")
-    feature_name = request.json.get("feature")
+    json_body = request.get_json(silent=True) or {}
+    location = json_body.get("location")
+    feature_name = json_body.get("feature")
 
     model, scaler, features = load_artifacts_by_location(location)
 
