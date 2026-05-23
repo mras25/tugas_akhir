@@ -77,17 +77,6 @@ ADMIN_KEY = "BMKGstasiunpanjanglampungitera"
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR = os.path.join(BASE_DIR, "model")
 
-# =========================
-# PERSISTENT DISK (Render)
-# Semua data user disimpan di sini agar tidak hilang saat redeploy.
-# Mount path harus sama dengan yang diset di Render Dashboard > Disks.
-# =========================
-PERSISTENT_DIR = os.environ.get(
-    "PERSISTENT_DIR",
-    os.path.join("/opt/render/project/src/persistent_data")
-)
-DATA_DIR = PERSISTENT_DIR  # alias agar mudah dibaca
-
 print("🔄 Loading scaler...")
 print("🔄 Loading features...")
 
@@ -111,10 +100,10 @@ print("✅ Model, scaler, dan features berhasil dimuat")
 
 
 # =========================
-# INIT DIRECTORIES (di persistent disk)
+# INIT DIRECTORIES
 # =========================
 for _dir in ["datasets", "predictions", "forecasts", "evaluations"]:
-    os.makedirs(os.path.join(DATA_DIR, _dir), exist_ok=True)
+    os.makedirs(os.path.join(BASE_DIR, _dir), exist_ok=True)
 
 WINDOW = 48
 
@@ -241,7 +230,7 @@ def upload():
     clusters = kmeans.fit_predict(elevm_values)
     df_proc["Cluster"] = clusters
 
-    UPLOAD_DIR = os.path.join(DATA_DIR, "datasets")
+    UPLOAD_DIR = os.path.join(BASE_DIR, "datasets")
     os.makedirs(UPLOAD_DIR, exist_ok=True)
     file_path = os.path.join(UPLOAD_DIR, f"{location}.csv")
 
@@ -258,7 +247,7 @@ def upload():
     # CLEAR SEMUA CACHE — saat data baru diupload, semua hasil lama dihapus
     # agar user tidak melihat data lama. Admin harus jalankan ulang prediksi.
     for folder in ["predictions", "forecasts", "evaluations"]:
-        folder_path = os.path.join(DATA_DIR, folder)
+        folder_path = os.path.join(BASE_DIR, folder)
         if os.path.exists(folder_path):
             for f in os.listdir(folder_path):
                 if f.startswith(location):
@@ -283,7 +272,7 @@ def api_features():
     location = request.args.get("location")
     if not location:
         return jsonify({"error": "Lokasi belum dipilih"}), 400
-    file_path = os.path.join(DATA_DIR, "datasets", f"{location}.csv")
+    file_path = os.path.join(BASE_DIR, "datasets", f"{location}.csv")
     if not os.path.exists(file_path):
         return jsonify({"error": "Dataset tidak ditemukan"}), 400
     df = pd.read_csv(file_path)
@@ -302,7 +291,7 @@ def evaluate():
     location = request.json.get("location")
     model, scaler, features = load_artifacts_by_location(location)
 
-    df_raw = pd.read_csv(os.path.join(DATA_DIR, "datasets", f"{location}.csv"))
+    df_raw = pd.read_csv(os.path.join(BASE_DIR, "datasets", f"{location}.csv"))
     df = preprocess_like_training(df_raw, features)
     data_scaled = scaler.transform(df).astype(np.float32)
 
@@ -339,7 +328,7 @@ def evaluate():
     # Hitung threshold dari KMeans (sama seperti notebook) dan simpan ke hasil evaluasi
     threshold = float(get_threshold(df, "elev_m"))
 
-    df_full = pd.read_csv(os.path.join(DATA_DIR, "datasets", f"{location}.csv"))
+    df_full = pd.read_csv(os.path.join(BASE_DIR, "datasets", f"{location}.csv"))
     cluster_table = []
     cluster_stats = {}
     if "Cluster" in df_full.columns and "elev_m" in df_full.columns:
@@ -356,7 +345,7 @@ def evaluate():
     }
 
     # Simpan / timpa cache evaluasi
-    eval_dir = os.path.join(DATA_DIR, "evaluations")
+    eval_dir = os.path.join(BASE_DIR, "evaluations")
     os.makedirs(eval_dir, exist_ok=True)
     with open(os.path.join(eval_dir, f"{location}.json"), "w") as f:
         json.dump(result, f)
@@ -373,7 +362,7 @@ def evaluation_result():
     if not location:
         return jsonify({"error": "Lokasi belum dipilih"}), 400
 
-    eval_file = os.path.join(DATA_DIR, "evaluations", f"{location}.json")
+    eval_file = os.path.join(BASE_DIR, "evaluations", f"{location}.json")
     if not os.path.exists(eval_file):
         return jsonify({"error": "Evaluasi belum dijalankan admin"}), 400
 
@@ -398,7 +387,7 @@ def cluster_visual():
     if not location:
         return jsonify({"error": "Lokasi belum dipilih"}), 400
 
-    file_path = os.path.join(DATA_DIR, "datasets", f"{location}.csv")
+    file_path = os.path.join(BASE_DIR, "datasets", f"{location}.csv")
     if not os.path.exists(file_path):
         return jsonify({"error": "Dataset tidak ditemukan"}), 400
 
@@ -431,11 +420,11 @@ def pred_vs_actual():
     # =========================
     # CACHE CONTROL (SISIPAN)
     # =========================
-    pred_file = os.path.join(DATA_DIR, "predictions", f"{location}_{safe_filename(feature_name)}.json")
+    pred_file = os.path.join(BASE_DIR, "predictions", f"{location}_{safe_filename(feature_name)}.json")
 
     # fallback lama
     if not os.path.exists(pred_file):
-        pred_file = os.path.join(DATA_DIR, "predictions", f"{location}.json")
+        pred_file = os.path.join(BASE_DIR, "predictions", f"{location}.json")
 
     # kalau TIDAK run → hanya baca cache
     if not run_model:
@@ -453,7 +442,7 @@ def pred_vs_actual():
     if feature_name not in features:
         feature_name = "elev_m"
 
-    df_raw = pd.read_csv(os.path.join(DATA_DIR, "datasets", f"{location}.csv"))
+    df_raw = pd.read_csv(os.path.join(BASE_DIR, "datasets", f"{location}.csv"))
 
     # TIME PARSE
     time_cols = [c for c in df_raw.columns if any(x in c.lower() for x in ["time", "date", "tanggal", "datetime"])]
@@ -525,7 +514,7 @@ def pred_vs_actual():
     }
 
     # Simpan per-lokasi per-fitur (timpa yang lama)
-    pred_dir = os.path.join(DATA_DIR, "predictions")
+    pred_dir = os.path.join(BASE_DIR, "predictions")
     os.makedirs(pred_dir, exist_ok=True)
     safe_feat = safe_filename(feature_name)
     with open(os.path.join(pred_dir, f"{location}_{safe_feat}.json"), "w") as f:
@@ -550,7 +539,7 @@ def forecast():
 
     model, scaler, features = load_artifacts_by_location(location)
 
-    df_raw = pd.read_csv(os.path.join(DATA_DIR, "datasets", f"{location}.csv"))
+    df_raw = pd.read_csv(os.path.join(BASE_DIR, "datasets", f"{location}.csv"))
 
     # Baca waktu terakhir dari dataset untuk generate timestamp forecast
     time_cols = [c for c in df_raw.columns if any(x in c.lower() for x in ["time", "date", "tanggal", "datetime"])]
@@ -604,7 +593,7 @@ def forecast():
         "steps": steps  # timestamp nyata
     }
 
-    forecasts_dir = os.path.join(DATA_DIR, "forecasts")
+    forecasts_dir = os.path.join(BASE_DIR, "forecasts")
     os.makedirs(forecasts_dir, exist_ok=True)
     safe_feat = safe_filename(feature_name)
     with open(os.path.join(forecasts_dir, f"{location}_{safe_feat}.json"), "w") as f:
@@ -625,7 +614,7 @@ def forecast_result():
         return jsonify({"error": "Parameter tidak lengkap"}), 400
 
     safe_feature = safe_filename(feature)
-    file_path = os.path.join(DATA_DIR, "forecasts", f"{location}_{safe_feature}.json")
+    file_path = os.path.join(BASE_DIR, "forecasts", f"{location}_{safe_feature}.json")
 
     if not os.path.exists(file_path):
         return jsonify({"error": "Forecast belum dijalankan admin"}), 400
@@ -643,7 +632,7 @@ def prediction_result():
     if not location:
         return jsonify({"error": "Lokasi belum dipilih"}), 400
 
-    pred_file = os.path.join(DATA_DIR, "predictions", f"{location}.json")
+    pred_file = os.path.join(BASE_DIR, "predictions", f"{location}.json")
     if not os.path.exists(pred_file):
         return jsonify({"error": "Prediksi belum dijalankan admin"}), 400
 
@@ -661,7 +650,7 @@ def api_timeseries():
     if not location:
         return jsonify({"error": "Lokasi belum dipilih"}), 400
 
-    file_path = os.path.join(DATA_DIR, "datasets", f"{location}.csv")
+    file_path = os.path.join(BASE_DIR, "datasets", f"{location}.csv")
     if not os.path.exists(file_path):
         return jsonify({"error": "Dataset tidak ditemukan"}), 400
 
@@ -684,7 +673,7 @@ def api_timeseries():
 # =========================
 @app.route("/api/locations")
 def api_locations():
-    datasets_dir = os.path.join(DATA_DIR, "datasets")
+    datasets_dir = os.path.join(BASE_DIR, "datasets")
     os.makedirs(datasets_dir, exist_ok=True)
     files = [f for f in os.listdir(datasets_dir) if f.endswith(".csv")]
     locations = [f.replace(".csv", "") for f in files]
@@ -699,7 +688,7 @@ def dashboard_data():
     location = request.args.get("location")
     model, scaler, features = load_artifacts_by_location(location)
 
-    df = pd.read_csv(os.path.join(DATA_DIR, "datasets", f"{location}.csv"))
+    df = pd.read_csv(os.path.join(BASE_DIR, "datasets", f"{location}.csv"))
     df_proc = df[features].copy()
     df_proc = handle_outliers_winsorize(df_proc)
     df_proc = df_proc.replace([np.inf, -np.inf], np.nan).dropna()
