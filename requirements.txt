@@ -1,11 +1,30 @@
-flask==3.1.1
-pandas==2.2.3
+# ============================================================
+# requirements.txt — Flask + TF CPU untuk Render $7 (512 MB RAM)
+# Target: penggunaan RAM < 256 MB saat idle
+# Python yang direkomendasikan: 3.10.x atau 3.11.x
+# ============================================================
+
+# --- Web Framework ---
+flask==3.0.3
+gunicorn==22.0.0          # WAJIB untuk Render (bukan flask dev server)
+
+# --- Data & Numerik ---
 numpy==1.26.4
-joblib==1.4.2
-matplotlib==3.9.2
-seaborn==0.13.2
-scikit-learn==1.7.1
-tensorflow-cpu==2.15.1
-tf-keras==2.15.0
+pandas==2.2.2
 scipy==1.13.1
-gunicorn==23.0.0
+joblib==1.4.2
+
+# --- Machine Learning ---
+scikit-learn==1.5.0
+
+# --- Deep Learning (CPU only, hemat RAM vs tensorflow biasa) ---
+# tensorflow-cpu tidak include library GPU → lebih ringan ~100 MB
+tensorflow-cpu==2.15.1
+
+# tf-keras: paket Keras 2 standalone yang kompatibel dengan .h5 dan
+# "from keras.models import load_model" di TF 2.15+
+# Tanpa ini, TF 2.16+ akan default ke Keras 3 yang bisa break kode lama
+tf-keras==2.15.1
+
+# h5py: wajib untuk load model .h5
+h5py==3.11.0
